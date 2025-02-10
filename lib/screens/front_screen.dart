@@ -10,6 +10,7 @@ class FrontScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final expenseProvider = Provider.of<ExpenseProvider>(context, listen: false);
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -19,16 +20,26 @@ class FrontScreen extends StatelessWidget {
         centerTitle: false,
         actions: [
           IconButton(
-              onPressed: () {
-                showModalBottomSheet(
-                    context: context,
-                    isDismissible: false,
-                    isScrollControlled: true,
-                    builder: (builder) {
-                      return FilterScreen();
-                    });
+            onPressed: () {
+              showModalBottomSheet(
+                context: context,
+                isDismissible: true,
+                enableDrag: true,
+                isScrollControlled: false,
+                builder: (builder) {
+                  return FilterScreen();
+                },
+              );
+            },
+            icon: Consumer<ExpenseProvider>(
+              builder: (context, value, child) {
+                return Icon(
+                  Icons.filter_alt_outlined,
+                  color: expenseProvider.isFilter ? Colors.green : Colors.black,
+                );
               },
-              icon: Icon(Icons.filter_alt_outlined))
+            ),
+          ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -47,12 +58,21 @@ class FrontScreen extends StatelessWidget {
         ),
       ),
       body: Consumer<ExpenseProvider>(builder: (context, expense, child) {
-        return ListView.builder(
-          itemCount: expense.expensesData.length,
-          itemBuilder: (contect, index) {
-            return EachExpense(expenseData: expense.expensesData[index]);
-          },
-        );
+        if (expense.isFilter == false) {
+          return ListView.builder(
+            itemCount: expense.expensesData.length,
+            itemBuilder: (contect, index) {
+              return EachExpense(expenseData: expense.expensesData[index]);
+            },
+          );
+        } else {
+          return ListView.builder(
+            itemCount: expense.filteredExpensesData.length,
+            itemBuilder: (contect, index) {
+              return EachExpense(expenseData: expense.filteredExpensesData[index]);
+            },
+          );
+        }
       }),
     );
   }
