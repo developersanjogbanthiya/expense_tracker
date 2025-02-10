@@ -23,9 +23,18 @@ class ExpenseProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  final List<String> _filterCategories = [];
+  List<String> get filterCategories => _filterCategories;
+
+  bool _datePicked = false;
+  bool get datePicked => _datePicked;
+  set datePicked(bool value) {
+    _datePicked = value;
+    notifyListeners();
+  }
+
   String _categorySelected = 'Work';
   String get categorySelected => _categorySelected;
-
   set categorySelected(String value) {
     _categorySelected = value;
     notifyListeners();
@@ -45,6 +54,11 @@ class ExpenseProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  ValueNotifier<bool> food = ValueNotifier<bool>(false);
+  ValueNotifier<bool> travel = ValueNotifier<bool>(false);
+  ValueNotifier<bool> leisure = ValueNotifier<bool>(false);
+  ValueNotifier<bool> work = ValueNotifier<bool>(false);
+
   final expenseBox = Hive.box<ExpenseModel>('expenseModel');
 
   void fetchExpenses() {
@@ -61,29 +75,43 @@ class ExpenseProvider extends ChangeNotifier {
   // expense date - 3 feb
 
   void filteredExpenses(Map<String, dynamic> filter) {
-    if (filter['dateRange'] == true || filter['category'].isNotEmpty) {
-      if (filter['dateRange'] == true) {
+    if (_datePicked == true || filter['category'].isNotEmpty) {
+      _filteredExpensesData.clear();
+      // If loop for only category filters
+      if (filter['dateRange'] == false && filter['category'].isNotEmpty) {
+        print('only category filters');
+        for (var expense in _expensesData) {
+          for (var fil in filter['category']) {
+            if (fil == expense.categoryModel) {
+              _filteredExpensesData.add(expense);
+            }
+          }
+        }
+      }
+      // If loop for only time range
+      if (_datePicked == true && filter['category'].isEmpty) {
+        print('only time range');
         _filteredExpensesData =
             _expensesData.where((expense) => expense.date.isAfter(initialDate) && expense.date.isBefore(finalDate)).toList();
       }
 
-      if (filter['category'].isNotEmpty) {
-        if (filter['category'].contains('Food')) {
-          _filteredExpensesData = _filteredExpensesData.where((expense) => expense.categoryModel == 'Food').toList();
-        }
-        if (filter['category'].contains('Travel')) {
-          _filteredExpensesData = _filteredExpensesData.where((expense) => expense.categoryModel == 'Travel').toList();
-        }
-        if (filter['category'].contains('Work')) {
-          _filteredExpensesData = _filteredExpensesData.where((expense) => expense.categoryModel == 'Work').toList();
-        }
-        if (filter['category'].contains('Leisure')) {
-          _filteredExpensesData = _filteredExpensesData.where((expense) => expense.categoryModel == 'Leisure').toList();
+      // If loop for both time range and category filters
+      if (_datePicked == true && filter['category'].isNotEmpty) {
+        print('both time range and category filters');
+        List<ExpenseModel> filteredList =
+            _expensesData.where((expense) => expense.date.isAfter(initialDate) && expense.date.isBefore(finalDate)).toList();
+        for (var expense in filteredList) {
+          for (var fil in filter['category']) {
+            if (fil == expense.categoryModel) {
+              _filteredExpensesData.add(expense);
+            }
+          }
         }
       }
+
+      isFilter = true;
+      notifyListeners();
     }
-    isFilter = true;
-    notifyListeners();
   }
 
   Future<void> addNewExpense(ExpenseModel expense) async {

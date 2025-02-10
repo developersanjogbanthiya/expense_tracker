@@ -7,43 +7,42 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class FilterScreen extends StatelessWidget {
-  FilterScreen({super.key});
-
-  ValueNotifier<bool> food = ValueNotifier<bool>(false);
-  ValueNotifier<bool> travel = ValueNotifier<bool>(false);
-  ValueNotifier<bool> leisure = ValueNotifier<bool>(false);
-  ValueNotifier<bool> work = ValueNotifier<bool>(false);
+  const FilterScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     final expenseProvider = Provider.of<ExpenseProvider>(context, listen: false);
 
-    Map<String, dynamic> filter = {'dateRange': false, 'category': []};
+    Map<String, dynamic> filter = {'dateRange': expenseProvider.datePicked, 'category': expenseProvider.filterCategories};
     void applyChanges() {
-      if (food.value) {
+      filter['category'].clear();
+      if (expenseProvider.food.value) {
         filter['category'].add('Food');
       }
-      if (travel.value) {
+      if (expenseProvider.travel.value) {
         filter['category'].add('Travel');
       }
-      if (leisure.value) {
+      if (expenseProvider.leisure.value) {
         filter['category'].add('Leisure');
       }
-      if (work.value) {
+      if (expenseProvider.work.value) {
         filter['category'].add('Work');
       }
       expenseProvider.filteredExpenses(filter);
+      Navigator.pop(context);
     }
 
     void clearFilters() {
+      expenseProvider.isFilter = false;
       expenseProvider.initialDate = DateTime.now();
       expenseProvider.finalDate = DateTime.now();
-      food.value = false;
-      travel.value = false;
-      leisure.value = false;
-      work.value = false;
-      filter['dateRange'] = false;
+      expenseProvider.food.value = false;
+      expenseProvider.travel.value = false;
+      expenseProvider.leisure.value = false;
+      expenseProvider.work.value = false;
+      expenseProvider.datePicked = false;
       filter['category'] = [];
+      Navigator.pop(context);
     }
 
     return Scaffold(
@@ -92,7 +91,7 @@ class FilterScreen extends StatelessWidget {
                               DateTime date = DateTime.now();
                               if (DateTime(value.initialDate.year, value.initialDate.month, value.initialDate.day) !=
                                   DateTime(date.year, date.month, date.day)) {
-                                filter['dateRange'] = true;
+                                expenseProvider.datePicked = true;
                               }
                             }
                           },
@@ -118,14 +117,14 @@ class FilterScreen extends StatelessWidget {
                     Row(
                       children: [
                         ValueListenableBuilder(
-                          valueListenable: food,
+                          valueListenable: expenseProvider.food,
                           builder: (context, valuee, child) {
                             return Row(
                               children: [
                                 Checkbox(
                                   value: valuee,
                                   onChanged: (value) {
-                                    food.value = value!;
+                                    expenseProvider.food.value = value!;
                                   },
                                 ),
                                 Text('Food'),
@@ -134,14 +133,14 @@ class FilterScreen extends StatelessWidget {
                           },
                         ),
                         ValueListenableBuilder(
-                          valueListenable: travel,
+                          valueListenable: expenseProvider.travel,
                           builder: (context, valuee, child) {
                             return Row(
                               children: [
                                 Checkbox(
                                   value: valuee,
                                   onChanged: (value) {
-                                    travel.value = value!;
+                                    expenseProvider.travel.value = value!;
                                   },
                                 ),
                                 Text('Travel'),
@@ -150,14 +149,14 @@ class FilterScreen extends StatelessWidget {
                           },
                         ),
                         ValueListenableBuilder(
-                          valueListenable: work,
+                          valueListenable: expenseProvider.work,
                           builder: (context, valuee, child) {
                             return Row(
                               children: [
                                 Checkbox(
                                   value: valuee,
                                   onChanged: (value) {
-                                    work.value = value!;
+                                    expenseProvider.work.value = value!;
                                   },
                                 ),
                                 Text('Work'),
@@ -166,14 +165,14 @@ class FilterScreen extends StatelessWidget {
                           },
                         ),
                         ValueListenableBuilder(
-                          valueListenable: leisure,
+                          valueListenable: expenseProvider.leisure,
                           builder: (context, valuee, child) {
                             return Row(
                               children: [
                                 Checkbox(
                                   value: valuee,
                                   onChanged: (value) {
-                                    leisure.value = value!;
+                                    expenseProvider.leisure.value = value!;
                                   },
                                 ),
                                 Text('Leisure'),
