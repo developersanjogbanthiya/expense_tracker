@@ -16,6 +16,7 @@ class FrontScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final expenseProvider = Provider.of<ExpenseProvider>(context, listen: false);
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: Text(
           'Expense Tracker',
@@ -68,6 +69,8 @@ class FrontScreen extends StatelessWidget {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           showModalBottomSheet(
+              isScrollControlled: true,
+              enableDrag: true,
               context: context,
               builder: (builder) {
                 return NewExpense();

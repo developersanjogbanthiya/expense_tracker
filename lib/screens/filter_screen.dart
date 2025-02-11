@@ -60,149 +60,151 @@ class FilterScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Column(
-          children: [
-            Row(
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Months
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Months
 
-                    Text(
-                      'Date Range',
-                      style: TextStyle(fontSize: 16),
-                    ),
-                    Gap(12),
-                    Consumer<ExpenseProvider>(
-                      builder: (context, value, child) {
-                        return TextButton(
-                          style: TextButton.styleFrom(
-                            foregroundColor: Colors.white,
-                            backgroundColor: Colors.green,
-                          ),
-                          onPressed: () async {
-                            List<DateTime?>? result = await showCalendarDatePicker2Dialog(
-                                context: context,
-                                config: CalendarDatePicker2WithActionButtonsConfig(
-                                  calendarType: CalendarDatePicker2Type.range,
-                                ),
-                                dialogSize: const Size(360, 360));
-                            if (result != null) {
-                              value.initialDate = result[0]!;
-                              value.finalDate = result[1]!;
-                              DateTime date = DateTime.now();
-                              if (DateTime(value.initialDate.year, value.initialDate.month, value.initialDate.day) !=
-                                  DateTime(date.year, date.month, date.day)) {
-                                expenseProvider.datePicked = true;
+                      Text(
+                        'Date Range',
+                        style: TextStyle(fontSize: 16),
+                      ),
+                      Gap(12),
+                      Consumer<ExpenseProvider>(
+                        builder: (context, value, child) {
+                          return TextButton(
+                            style: TextButton.styleFrom(
+                              foregroundColor: Colors.white,
+                              backgroundColor: Colors.green,
+                            ),
+                            onPressed: () async {
+                              List<DateTime?>? result = await showCalendarDatePicker2Dialog(
+                                  context: context,
+                                  config: CalendarDatePicker2WithActionButtonsConfig(
+                                    calendarType: CalendarDatePicker2Type.range,
+                                  ),
+                                  dialogSize: const Size(360, 360));
+                              if (result != null) {
+                                value.initialDate = result[0]!;
+                                value.finalDate = result[1]!;
+                                DateTime date = DateTime.now();
+                                if (DateTime(value.initialDate.year, value.initialDate.month, value.initialDate.day) !=
+                                    DateTime(date.year, date.month, date.day)) {
+                                  expenseProvider.datePicked = true;
+                                }
                               }
-                            }
-                          },
-                          child: Row(
-                            children: [
-                              Icon(FluentIcons.calendar_16_regular, color: Colors.white),
-                              const Gap(8),
-                              Text(
-                                  '${DateFormat('dd MMM yy').format(value.initialDate)} - ${DateFormat('dd MMM yy').format(value.finalDate)}'),
-                            ],
+                            },
+                            child: Row(
+                              children: [
+                                Icon(FluentIcons.calendar_16_regular, color: Colors.white),
+                                const Gap(8),
+                                Text(
+                                    '${DateFormat('dd MMM yy').format(value.initialDate)} - ${DateFormat('dd MMM yy').format(value.finalDate)}'),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+
+                      Gap(16),
+                      // Categories
+                      Text(
+                        'Categories',
+                        style: TextStyle(fontSize: 16),
+                      ),
+
+                      Row(
+                        children: [
+                          ValueListenableBuilder(
+                            valueListenable: expenseProvider.food,
+                            builder: (context, valuee, child) {
+                              return Row(
+                                children: [
+                                  Checkbox(
+                                    value: valuee,
+                                    onChanged: (value) {
+                                      expenseProvider.food.value = value!;
+                                    },
+                                  ),
+                                  Text('Food'),
+                                ],
+                              );
+                            },
                           ),
-                        );
-                      },
-                    ),
-
-                    Gap(16),
-                    // Categories
-                    Text(
-                      'Categories',
-                      style: TextStyle(fontSize: 16),
-                    ),
-
-                    Row(
-                      children: [
-                        ValueListenableBuilder(
-                          valueListenable: expenseProvider.food,
-                          builder: (context, valuee, child) {
-                            return Row(
-                              children: [
-                                Checkbox(
-                                  value: valuee,
-                                  onChanged: (value) {
-                                    expenseProvider.food.value = value!;
-                                  },
-                                ),
-                                Text('Food'),
-                              ],
-                            );
-                          },
-                        ),
-                        ValueListenableBuilder(
-                          valueListenable: expenseProvider.travel,
-                          builder: (context, valuee, child) {
-                            return Row(
-                              children: [
-                                Checkbox(
-                                  value: valuee,
-                                  onChanged: (value) {
-                                    expenseProvider.travel.value = value!;
-                                  },
-                                ),
-                                Text('Travel'),
-                              ],
-                            );
-                          },
-                        ),
-                        ValueListenableBuilder(
-                          valueListenable: expenseProvider.work,
-                          builder: (context, valuee, child) {
-                            return Row(
-                              children: [
-                                Checkbox(
-                                  value: valuee,
-                                  onChanged: (value) {
-                                    expenseProvider.work.value = value!;
-                                  },
-                                ),
-                                Text('Work'),
-                              ],
-                            );
-                          },
-                        ),
-                        ValueListenableBuilder(
-                          valueListenable: expenseProvider.leisure,
-                          builder: (context, valuee, child) {
-                            return Row(
-                              children: [
-                                Checkbox(
-                                  value: valuee,
-                                  onChanged: (value) {
-                                    expenseProvider.leisure.value = value!;
-                                  },
-                                ),
-                                Text('Leisure'),
-                              ],
-                            );
-                          },
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            Spacer(),
-            // Apply button
-            ElevatedButton(
-              onPressed: applyChanges,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
-                foregroundColor: Colors.white,
+                          ValueListenableBuilder(
+                            valueListenable: expenseProvider.travel,
+                            builder: (context, valuee, child) {
+                              return Row(
+                                children: [
+                                  Checkbox(
+                                    value: valuee,
+                                    onChanged: (value) {
+                                      expenseProvider.travel.value = value!;
+                                    },
+                                  ),
+                                  Text('Travel'),
+                                ],
+                              );
+                            },
+                          ),
+                          ValueListenableBuilder(
+                            valueListenable: expenseProvider.work,
+                            builder: (context, valuee, child) {
+                              return Row(
+                                children: [
+                                  Checkbox(
+                                    value: valuee,
+                                    onChanged: (value) {
+                                      expenseProvider.work.value = value!;
+                                    },
+                                  ),
+                                  Text('Work'),
+                                ],
+                              );
+                            },
+                          ),
+                          ValueListenableBuilder(
+                            valueListenable: expenseProvider.leisure,
+                            builder: (context, valuee, child) {
+                              return Row(
+                                children: [
+                                  Checkbox(
+                                    value: valuee,
+                                    onChanged: (value) {
+                                      expenseProvider.leisure.value = value!;
+                                    },
+                                  ),
+                                  Text('Leisure'),
+                                ],
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
               ),
-              child: Text('Apply Changes'),
-            ),
-            Gap(12),
-          ],
+              Spacer(),
+              // Apply button
+              ElevatedButton(
+                onPressed: applyChanges,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  foregroundColor: Colors.white,
+                ),
+                child: Text('Apply Changes'),
+              ),
+              Gap(12),
+            ],
+          ),
         ),
       ),
     );
