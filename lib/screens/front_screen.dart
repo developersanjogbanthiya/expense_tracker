@@ -1,8 +1,12 @@
 import 'package:expense_trackee/providers/expense_provider.dart';
 import 'package:expense_trackee/screens/filter_screen.dart';
 import 'package:expense_trackee/screens/new_expense.dart';
+import 'package:expense_trackee/screens/stat_screen.dart';
 import 'package:expense_trackee/widgets/each_expense.dart';
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class FrontScreen extends StatelessWidget {
@@ -19,6 +23,19 @@ class FrontScreen extends StatelessWidget {
         ),
         centerTitle: false,
         actions: [
+          // Stat Screen
+          IconButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                CupertinoPageRoute(
+                  builder: (builder) => StatScreen(),
+                ),
+              );
+            },
+            icon: Icon(FluentIcons.chart_multiple_16_filled),
+          ),
+          // Filter Screen
           IconButton(
             onPressed: () {
               showModalBottomSheet(
@@ -33,9 +50,15 @@ class FrontScreen extends StatelessWidget {
             },
             icon: Consumer<ExpenseProvider>(
               builder: (context, value, child) {
+                if (!expenseProvider.isFilter) {
+                  return Icon(
+                    Icons.filter_alt_outlined,
+                    color: Colors.black,
+                  );
+                }
                 return Icon(
-                  Icons.filter_alt_outlined,
-                  color: expenseProvider.isFilter ? Colors.green : Colors.black,
+                  Icons.filter_alt,
+                  color: Colors.green,
                 );
               },
             ),
@@ -59,11 +82,39 @@ class FrontScreen extends StatelessWidget {
       ),
       body: Consumer<ExpenseProvider>(builder: (context, expense, child) {
         if (expense.isFilter == false) {
-          return ListView.builder(
-            itemCount: expense.expensesData.length,
-            itemBuilder: (contect, index) {
-              return EachExpense(expenseData: expense.expensesData[index]);
-            },
+          String currentMonth = DateFormat('MMM').format(DateTime(DateTime.now().year, DateTime.now().month));
+          return Column(
+            children: [
+              InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    CupertinoPageRoute(
+                      builder: (builder) => StatScreen(),
+                    ),
+                  );
+                },
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    color: const Color.fromARGB(255, 67, 81, 59),
+                  ),
+                  child: Text(
+                    '$currentMonth Total Expense: Rs.${expense.currentMonExp}',
+                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: expense.expensesData.length,
+                  itemBuilder: (contect, index) {
+                    return EachExpense(expenseData: expense.expensesData[index]);
+                  },
+                ),
+              )
+            ],
           );
         } else {
           return ListView.builder(

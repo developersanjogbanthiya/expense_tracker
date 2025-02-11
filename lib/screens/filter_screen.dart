@@ -53,7 +53,12 @@ class FilterScreen extends StatelessWidget {
           'Filters',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        actions: [TextButton(onPressed: clearFilters, child: Text('Clear Filters'))],
+        actions: [
+          TextButton(
+            onPressed: clearFilters,
+            child: Text('Clear Filters'),
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(12.0),
