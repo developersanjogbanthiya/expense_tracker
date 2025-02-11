@@ -71,6 +71,7 @@ class ExpenseProvider extends ChangeNotifier {
   }
 
   void currentMonthExpense() {
+    _currentMonExp = 0;
     DateTime now = DateTime.now();
     DateTime firstDateOfMon = DateTime(now.year, now.month, 1);
     DateTime lastDateOfMon = DateTime(now.year, now.month + 1, 0);
