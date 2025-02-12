@@ -17,6 +17,8 @@ class EachExpense extends StatelessWidget {
     void editExpense() {
       expenseProvider.categorySelected = expenseData.categoryModel;
       showModalBottomSheet(
+        isScrollControlled: true,
+        enableDrag: true,
         context: context,
         builder: (builder) => EditExpense(
           expenseModel: expenseData,

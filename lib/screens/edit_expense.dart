@@ -6,18 +6,25 @@ import 'package:gap/gap.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-class EditExpense extends StatelessWidget {
+class EditExpense extends StatefulWidget {
   EditExpense({super.key, required this.expenseModel});
   ExpenseModel expenseModel;
+
+  @override
+  State<EditExpense> createState() => _EditExpenseState();
+}
+
+class _EditExpenseState extends State<EditExpense> {
+  DateTime? selectedDate;
+  final formKey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
-    final ValueNotifier<DateTime> date = ValueNotifier<DateTime>(expenseModel.date);
-    DateTime? selectedDate;
-    final formKey = GlobalKey<FormState>();
+    print('object');
+    final ValueNotifier<DateTime> date = ValueNotifier<DateTime>(widget.expenseModel.date);
 
-    final TextEditingController titleController = TextEditingController(text: expenseModel.expenseTitle);
+    final TextEditingController titleController = TextEditingController(text: widget.expenseModel.expenseTitle);
 
-    final TextEditingController expenseController = TextEditingController(text: expenseModel.expense.toString());
+    final TextEditingController expenseController = TextEditingController(text: widget.expenseModel.expense.toString());
     final expenseProvider = Provider.of<ExpenseProvider>(context, listen: false);
     final heightKeyboard = MediaQuery.of(context).viewInsets.bottom;
 
@@ -38,159 +45,161 @@ class EditExpense extends StatelessWidget {
       if (formKey.currentState!.validate()) {
         // Add the expense data
         formKey.currentState!.save();
-        int index = expenseProvider.expensesData.indexOf(expenseModel);
+        int index = expenseProvider.expensesData.indexOf(widget.expenseModel);
 
-        expenseModel.expenseTitle = titleController.text;
-        expenseModel.expense = int.parse(expenseController.text);
-        expenseModel.categoryModel = expenseProvider.categorySelected;
-        expenseModel.date = date.value;
-        expenseProvider.editExpense(expenseModel, index);
+        widget.expenseModel.expenseTitle = titleController.text;
+        widget.expenseModel.expense = int.parse(expenseController.text);
+        widget.expenseModel.categoryModel = expenseProvider.categorySelected;
+        widget.expenseModel.date = date.value;
+        expenseProvider.editExpense(widget.expenseModel, index);
 
         Navigator.of(context).pop();
         formKey.currentState!.reset();
       }
     }
 
-    return SingleChildScrollView(
-      child: Container(
-        padding: EdgeInsets.only(top: 12, right: 12, left: 12, bottom: heightKeyboard + 48),
-        child: Form(
-          key: formKey,
-          child: Column(
-            children: [
-              // Expense title
-              TextFormField(
-                controller: titleController,
-                maxLength: 20,
-                decoration: InputDecoration(
-                  hintText: expenseModel.expenseTitle,
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.green),
+    return SafeArea(
+      child: SingleChildScrollView(
+        child: Container(
+          padding: EdgeInsets.only(top: 12, right: 12, left: 12, bottom: heightKeyboard),
+          child: Form(
+            key: formKey,
+            child: Column(
+              children: [
+                // Expense title
+                TextFormField(
+                  controller: titleController,
+                  maxLength: 20,
+                  decoration: InputDecoration(
+                    hintText: widget.expenseModel.expenseTitle,
+                    enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.green),
+                    ),
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.green),
+                    ),
                   ),
-                  focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.green),
-                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty || value.length < 2) {
+                      return 'Enter appropriate title';
+                    }
+                    return null;
+                  },
+                  onSaved: (newValue) {
+                    titleController.text = newValue!;
+                  },
                 ),
-                validator: (value) {
-                  if (value == null || value.isEmpty || value.length < 2) {
-                    return 'Enter appropriate title';
-                  }
-                  return null;
-                },
-                onSaved: (newValue) {
-                  titleController.text = newValue!;
-                },
-              ),
-              Row(
-                children: [
-                  // Expense in Rs.
-                  Expanded(
-                    child: TextFormField(
-                      controller: expenseController,
-                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                      decoration: InputDecoration(
-                        hintText: expenseModel.expense.toString(),
-                        labelText: 'Rs.',
-                        enabledBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: Colors.green),
+                Row(
+                  children: [
+                    // Expense in Rs.
+                    Expanded(
+                      child: TextFormField(
+                        controller: expenseController,
+                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                        decoration: InputDecoration(
+                          hintText: widget.expenseModel.expense.toString(),
+                          labelText: 'Rs.',
+                          enabledBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: Colors.green),
+                          ),
+                          focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: Colors.green),
+                          ),
                         ),
-                        focusedBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: Colors.green),
-                        ),
+                        validator: (value) {
+                          if (value == null || int.tryParse(value) == null || int.parse(value) == 0) {
+                            return 'Enter appropriate data';
+                          }
+                          return null;
+                        },
+                        onSaved: (newValue) {
+                          expenseController.text = newValue!;
+                        },
                       ),
-                      validator: (value) {
-                        if (value == null || int.tryParse(value) == null || int.parse(value) == 0) {
-                          return 'Enter appropriate data';
-                        }
-                        return null;
-                      },
-                      onSaved: (newValue) {
-                        expenseController.text = newValue!;
+                    ),
+                    Gap(32),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Category:'),
+                        Gap(4),
+                        Container(
+                          // width: 72,
+                          margin: EdgeInsets.only(right: 8),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.green),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Consumer<ExpenseProvider>(
+                            builder: (context, expenseProvider, child) {
+                              return DropdownButton<String>(
+                                borderRadius: BorderRadius.circular(12),
+                                padding: EdgeInsets.only(left: 16, right: 16),
+                                dropdownColor: const Color.fromARGB(255, 237, 251, 238),
+                                value: expenseProvider.categorySelected,
+                                iconSize: 0,
+                                elevation: 8,
+                                underline: const SizedBox.shrink(),
+                                items: expenseProvider.category.map<DropdownMenuItem<String>>((String value) {
+                                  return DropdownMenuItem<String>(
+                                    value: value,
+                                    child: Text(value),
+                                  );
+                                }).toList(),
+                                onChanged: (value) {
+                                  expenseProvider.categorySelected = value!;
+                                },
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    ValueListenableBuilder(
+                      valueListenable: date,
+                      builder: (context, value, child) {
+                        return Text(
+                          'Date : ${DateFormat('dd-MMM').format(date.value)}',
+                          style: TextStyle(fontSize: 16),
+                        );
                       },
                     ),
-                  ),
-                  Gap(32),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Category:'),
-                      Gap(4),
-                      Container(
-                        // width: 72,
-                        margin: EdgeInsets.only(right: 8),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.green),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Consumer<ExpenseProvider>(
-                          builder: (context, expenseProvider, child) {
-                            return DropdownButton<String>(
-                              borderRadius: BorderRadius.circular(12),
-                              padding: EdgeInsets.only(left: 16, right: 16),
-                              dropdownColor: const Color.fromARGB(255, 237, 251, 238),
-                              value: expenseProvider.categorySelected,
-                              iconSize: 0,
-                              elevation: 8,
-                              underline: const SizedBox.shrink(),
-                              items: expenseProvider.category.map<DropdownMenuItem<String>>((String value) {
-                                return DropdownMenuItem<String>(
-                                  value: value,
-                                  child: Text(value),
-                                );
-                              }).toList(),
-                              onChanged: (value) {
-                                expenseProvider.categorySelected = value!;
-                              },
-                            );
-                          },
-                        ),
+                    IconButton(
+                      onPressed: datePicker,
+                      icon: const Icon(Icons.calendar_month),
+                    )
+                  ],
+                ),
+                Gap(16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    // Submit Button
+                    ElevatedButton(
+                      onPressed: editExpense,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                        foregroundColor: Colors.white,
                       ),
-                    ],
-                  ),
-                ],
-              ),
-              Row(
-                children: [
-                  ValueListenableBuilder(
-                    valueListenable: date,
-                    builder: (context, value, child) {
-                      return Text(
-                        'Date : ${DateFormat('dd-MMM').format(date.value)}',
-                        style: TextStyle(fontSize: 16),
-                      );
-                    },
-                  ),
-                  IconButton(
-                    onPressed: datePicker,
-                    icon: const Icon(Icons.calendar_month),
-                  )
-                ],
-              ),
-              Gap(16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  // Submit Button
-                  ElevatedButton(
-                    onPressed: editExpense,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-                      foregroundColor: Colors.white,
+                      child: Text('Save Expense'),
                     ),
-                    child: Text('Save Expense'),
-                  ),
-                  Gap(12),
-                  // Reset Button
+                    Gap(12),
+                    // Reset Button
 
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: Text('Cancel'),
-                  ),
-                ],
-              ),
-            ],
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: Text('Cancel'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
