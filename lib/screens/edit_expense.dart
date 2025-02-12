@@ -19,7 +19,6 @@ class _EditExpenseState extends State<EditExpense> {
   final formKey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
-    print('object');
     final ValueNotifier<DateTime> date = ValueNotifier<DateTime>(widget.expenseModel.date);
 
     final TextEditingController titleController = TextEditingController(text: widget.expenseModel.expenseTitle);

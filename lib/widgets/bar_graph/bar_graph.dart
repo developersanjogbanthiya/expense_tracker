@@ -9,7 +9,14 @@ class ExpBarGraph extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     BarData myBarData = BarData(
-        leisure: categoryExp['Leisure']!, food: categoryExp['Food']!, travel: categoryExp['Travel']!, work: categoryExp['Work']!);
+      leisure: categoryExp['Leisure']!,
+      food: categoryExp['Food']!,
+      travel: categoryExp['Travel']!,
+      work: categoryExp['Work']!,
+      transportation: categoryExp['Transportation']!,
+      personalAndLifestyle: categoryExp['Personal And Lifestyle']!,
+      dailyEssentials: categoryExp['Daily Essentials']!,
+    );
 
     myBarData.initializeBarData();
 
@@ -44,7 +51,7 @@ class ExpBarGraph extends StatelessWidget {
                       data.y.toString(),
                     ),
                     color: const Color.fromARGB(255, 94, 169, 96),
-                    width: 24,
+                    width: 12,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ],
@@ -60,32 +67,50 @@ Widget getBottomTitles(double value, TitleMeta meta) {
   const style = TextStyle(
     color: Colors.green,
     fontWeight: FontWeight.bold,
-    fontSize: 12,
+    fontSize: 10,
   );
 
   Widget text;
   switch (value) {
     case 0:
       text = Text(
-        'Food',
+        'F',
         style: style,
       );
       break;
     case 1:
       text = Text(
-        'Travel',
+        'T',
         style: style,
       );
       break;
     case 2:
       text = Text(
-        'Work',
+        'W',
         style: style,
       );
       break;
     case 3:
       text = Text(
-        'Leisure',
+        'L',
+        style: style,
+      );
+      break;
+    case 4:
+      text = Text(
+        'DE',
+        style: style,
+      );
+      break;
+    case 5:
+      text = Text(
+        'Fuel',
+        style: style,
+      );
+      break;
+    case 6:
+      text = Text(
+        'P & L',
         style: style,
       );
       break;

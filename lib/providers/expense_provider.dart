@@ -14,7 +14,15 @@ class ExpenseProvider extends ChangeNotifier {
   List<ExpenseModel> _filteredExpensesData = [];
   List<ExpenseModel> get filteredExpensesData => _filteredExpensesData;
 
-  final List<String> _category = ['Travel', 'Work', 'Leisure', 'Food'];
+  final List<String> _category = [
+    'Travel',
+    'Work',
+    'Leisure',
+    'Food',
+    'Daily Essentials',
+    'Transportation',
+    'Personal & Lifestyle'
+  ];
   List<String> get category => _category;
 
   bool _isFilter = false;
@@ -60,6 +68,9 @@ class ExpenseProvider extends ChangeNotifier {
   ValueNotifier<bool> travel = ValueNotifier<bool>(false);
   ValueNotifier<bool> leisure = ValueNotifier<bool>(false);
   ValueNotifier<bool> work = ValueNotifier<bool>(false);
+  ValueNotifier<bool> dailyEssentials = ValueNotifier<bool>(false);
+  ValueNotifier<bool> transportation = ValueNotifier<bool>(false);
+  ValueNotifier<bool> personalAndLifestyle = ValueNotifier<bool>(false);
 
   final expenseBox = Hive.box<ExpenseModel>('expenseModel');
 
@@ -98,7 +109,7 @@ class ExpenseProvider extends ChangeNotifier {
     if (_datePicked == true || filter['category'].isNotEmpty) {
       _filteredExpensesData.clear();
       // If loop for only category filters
-      if (filter['dateRange'] == false && filter['category'].isNotEmpty) {
+      if (_datePicked == false && filter['category'].isNotEmpty) {
         for (var expense in _expensesData) {
           for (var fil in filter['category']) {
             if (fil == expense.categoryModel) {
@@ -109,14 +120,20 @@ class ExpenseProvider extends ChangeNotifier {
       }
       // If loop for only time range
       if (_datePicked == true && filter['category'].isEmpty) {
-        _filteredExpensesData =
-            _expensesData.where((expense) => expense.date.isAfter(initialDate) && expense.date.isBefore(finalDate)).toList();
+        _filteredExpensesData = _expensesData
+            .where((expense) =>
+                expense.date.isAfter(initialDate.subtract(Duration(days: 1))) &&
+                expense.date.isBefore(finalDate.add(Duration(days: 1))))
+            .toList();
       }
 
       // If loop for both time range and category filters
       if (_datePicked == true && filter['category'].isNotEmpty) {
-        List<ExpenseModel> filteredList =
-            _expensesData.where((expense) => expense.date.isAfter(initialDate) && expense.date.isBefore(finalDate)).toList();
+        List<ExpenseModel> filteredList = _expensesData
+            .where((expense) =>
+                expense.date.isAfter(initialDate.subtract(Duration(days: 1))) &&
+                expense.date.isBefore(finalDate.add(Duration(days: 1))))
+            .toList();
         for (var expense in filteredList) {
           for (var fil in filter['category']) {
             if (fil == expense.categoryModel) {
@@ -128,6 +145,8 @@ class ExpenseProvider extends ChangeNotifier {
 
       isFilter = true;
       notifyListeners();
+    } else {
+      isFilter = false;
     }
   }
 
@@ -163,7 +182,15 @@ class ExpenseProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  final Map<String, int> _categoryExp = {"Food": 0, "Travel": 0, "Work": 0, "Leisure": 0};
+  final Map<String, int> _categoryExp = {
+    "Food": 0,
+    "Travel": 0,
+    "Work": 0,
+    "Leisure": 0,
+    "Transportation": 0,
+    "Personal And Lifestyle": 0,
+    "Daily Essentials": 0
+  };
   Map<String, int> get categoryExp => _categoryExp;
 
   int _foodExp = 0;
@@ -194,6 +221,27 @@ class ExpenseProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  int _transExp = 0;
+  int get transExp => _transExp;
+  set transExp(int value) {
+    _transExp = value;
+    notifyListeners();
+  }
+
+  int _perAndLifeExp = 0;
+  int get perAndLifeExp => _perAndLifeExp;
+  set perAndLifeExp(int value) {
+    _perAndLifeExp = value;
+    notifyListeners();
+  }
+
+  int _dailyExp = 0;
+  int get dailyExp => _dailyExp;
+  set dailyExp(int value) {
+    _dailyExp = value;
+    notifyListeners();
+  }
+
   void calculateExp(int currMonth) {
     // Resetting all the values to 0
     _monExp = 0;
@@ -201,6 +249,9 @@ class ExpenseProvider extends ChangeNotifier {
     _travelExp = 0;
     _workExp = 0;
     _leisureExp = 0;
+    _dailyExp = 0;
+    _perAndLifeExp = 0;
+    _transExp = 0;
 
     DateTime now = DateTime.now();
     DateTime firstDateOfMon = DateTime(now.year, now.month - currMonth, 1);
@@ -226,10 +277,22 @@ class ExpenseProvider extends ChangeNotifier {
       if (eachExpense.categoryModel == 'Leisure') {
         _leisureExp += eachExpense.expense;
       }
+      if (eachExpense.categoryModel == 'Daily Essentials') {
+        _dailyExp += eachExpense.expense;
+      }
+      if (eachExpense.categoryModel == 'Personal And Lifestyle') {
+        _perAndLifeExp += eachExpense.expense;
+      }
+      if (eachExpense.categoryModel == 'Transportation') {
+        _transExp += eachExpense.expense;
+      }
     }
     _categoryExp['Food'] = _foodExp;
     _categoryExp['Travel'] = _travelExp;
     _categoryExp['Work'] = _workExp;
     _categoryExp['Leisure'] = _leisureExp;
+    _categoryExp['Transportation'] = _transExp;
+    _categoryExp['Personal And Lifestyle'] = _perAndLifeExp;
+    _categoryExp['Daily Essentials'] = _dailyExp;
   }
 }

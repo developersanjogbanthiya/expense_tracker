@@ -28,6 +28,15 @@ class FilterScreen extends StatelessWidget {
       if (expenseProvider.work.value) {
         filter['category'].add('Work');
       }
+      if (expenseProvider.transportation.value) {
+        filter['category'].add('Transportation');
+      }
+      if (expenseProvider.personalAndLifestyle.value) {
+        filter['category'].add('Personal And Lifestyle');
+      }
+      if (expenseProvider.dailyEssentials.value) {
+        filter['category'].add('Daily Essentials');
+      }
       expenseProvider.filteredExpenses(filter);
       Navigator.pop(context);
     }
@@ -41,6 +50,9 @@ class FilterScreen extends StatelessWidget {
       expenseProvider.leisure.value = false;
       expenseProvider.work.value = false;
       expenseProvider.datePicked = false;
+      expenseProvider.transportation.value = false;
+      expenseProvider.personalAndLifestyle.value = false;
+      expenseProvider.dailyEssentials.value = false;
       filter['category'] = [];
       Navigator.pop(context);
     }
@@ -187,6 +199,58 @@ class FilterScreen extends StatelessWidget {
                             },
                           ),
                         ],
+                      ),
+                      Row(
+                        children: [
+                          ValueListenableBuilder(
+                            valueListenable: expenseProvider.transportation,
+                            builder: (context, valuee, child) {
+                              return Row(
+                                children: [
+                                  Checkbox(
+                                    value: valuee,
+                                    onChanged: (value) {
+                                      expenseProvider.transportation.value = value!;
+                                    },
+                                  ),
+                                  Text('Transportation'),
+                                ],
+                              );
+                            },
+                          ),
+                          ValueListenableBuilder(
+                            valueListenable: expenseProvider.dailyEssentials,
+                            builder: (context, valuee, child) {
+                              return Row(
+                                children: [
+                                  Checkbox(
+                                    value: valuee,
+                                    onChanged: (value) {
+                                      expenseProvider.dailyEssentials.value = value!;
+                                    },
+                                  ),
+                                  Text('Daily Essentials'),
+                                ],
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                      ValueListenableBuilder(
+                        valueListenable: expenseProvider.personalAndLifestyle,
+                        builder: (context, valuee, child) {
+                          return Row(
+                            children: [
+                              Checkbox(
+                                value: valuee,
+                                onChanged: (value) {
+                                  expenseProvider.personalAndLifestyle.value = value!;
+                                },
+                              ),
+                              Text('Personal & Lifestyle'),
+                            ],
+                          );
+                        },
                       ),
                     ],
                   ),
