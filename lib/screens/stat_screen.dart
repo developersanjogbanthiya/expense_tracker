@@ -6,8 +6,8 @@ import 'package:intl/intl.dart';
 class StatScreen extends StatelessWidget {
   StatScreen({super.key});
 
-  DateTime now = DateTime.now();
-  ValueNotifier<int> activeMonth = ValueNotifier<int>(0);
+  final DateTime now = DateTime.now();
+  final ValueNotifier<int> activeMonth = ValueNotifier<int>(0);
 
   @override
   Widget build(BuildContext context) {
